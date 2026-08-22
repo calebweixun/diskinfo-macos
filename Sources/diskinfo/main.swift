@@ -194,33 +194,83 @@ struct DiskInfoApp {
     }
 
     static func printJSON(_ disks: [DiskInfo]) {
+        struct JSONDisk: Encodable {
+            let device: String
+            let name: String
+            let model: String
+            let serial: String
+            let firmware: String
+            let protocolName: String
+            let capacity: String
+            let health: String
+            let temperature: String
+            let percentageUsed: String
+            let availableSpare: String
+            let dataRead: String
+            let dataWritten: String
+            let powerOnHours: String
+            let powerCycles: String
+            let unsafeShutdowns: String
+            let integrityErrors: String
+            let errorLogEntries: String
+
+            enum CodingKeys: String, CodingKey {
+                case device
+                case name
+                case model
+                case serial
+                case firmware
+                case protocolName = "protocol"
+                case capacity
+                case health
+                case temperature
+                case percentageUsed = "percentage_used"
+                case availableSpare = "available_spare"
+                case dataRead = "data_read"
+                case dataWritten = "data_written"
+                case powerOnHours = "power_on_hours"
+                case powerCycles = "power_cycles"
+                case unsafeShutdowns = "unsafe_shutdowns"
+                case integrityErrors = "integrity_errors"
+                case errorLogEntries = "error_log_entries"
+            }
+        }
+
+        let payload = disks.map { disk in
+            JSONDisk(
+                device: disk.device,
+                name: disk.name ?? "",
+                model: disk.model ?? "",
+                serial: disk.serial ?? "",
+                firmware: disk.firmware ?? "",
+                protocolName: disk.protocolName ?? "",
+                capacity: disk.capacity ?? "",
+                health: disk.health ?? "",
+                temperature: disk.temperature ?? "",
+                percentageUsed: disk.percentageUsed ?? "",
+                availableSpare: disk.spare ?? "",
+                dataRead: disk.read ?? "",
+                dataWritten: disk.written ?? "",
+                powerOnHours: disk.powerOnHours ?? "",
+                powerCycles: disk.powerCycles ?? "",
+                unsafeShutdowns: disk.unsafeShutdowns ?? "",
+                integrityErrors: disk.integrityErrors ?? "",
+                errorLogEntries: disk.errorLogEntries ?? ""
+            )
+        }
+
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
         do {
-            print(String(data: try encoder.encode(disks.map { d in
-                [
-                    "device": d.device,
-                    "name": d.name ?? "",
-                    "model": d.model ?? "",
-                    "serial": d.serial ?? "",
-                    "firmware": d.firmware ?? "",
-                    "protocol": d.protocolName ?? "",
-                    "capacity": d.capacity ?? "",
-                    "health": d.health ?? "",
-                    "temperature": d.temperature ?? "",
-                    "percentage_used": d.percentageUsed ?? "",
-                    "available_spare": d.spare ?? "",
-                    "data_read": d.read ?? "",
-                    "data_written": d.written ?? "",
-                    "power_on_hours": d.powerOnHours ?? "",
-                    "power_cycles": d.powerCycles ?? "",
-                    "unsafe_shutdowns": d.unsafeShutdowns ?? "",
-                    "integrity_errors": d.integrityErrors ?? "",
-                    "error_log_entries": d.errorLogEntries ?? ""
-                ]
-            })), encoding: .utf8)!)
+            let data = try encoder.encode(payload)
+            guard let output = String(data: data, encoding: .utf8) else {
+                fputs("error: failed to convert JSON to UTF-8\n", stderr)
+                return
+            }
+            print(output)
         } catch {
-            fputs("error: failed to encode JSON\n", stderr)
+            fputs("error: failed to encode JSON: \(error)\n", stderr)
         }
     }
 }

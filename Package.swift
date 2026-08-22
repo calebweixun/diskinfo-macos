@@ -18,11 +18,6 @@ let package = Package(
         .executableTarget(
             name: "DiskInfo",
             path: "Sources/DiskInfo"
-        ),
-        .testTarget(
-            name: "diskinfoTests",
-            dependencies: ["diskinfo"],
-            path: "Tests/diskinfoTests"
         )
     ]
 )

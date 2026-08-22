@@ -7,12 +7,17 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .executable(name: "diskinfo", targets: ["diskinfo"])
+        .executable(name: "diskinfo", targets: ["diskinfo"]),
+        .executable(name: "DiskInfo", targets: ["DiskInfo"])
     ],
     targets: [
         .executableTarget(
             name: "diskinfo",
             path: "Sources/diskinfo"
+        ),
+        .executableTarget(
+            name: "DiskInfo",
+            path: "Sources/DiskInfo"
         ),
         .testTarget(
             name: "diskinfoTests",
